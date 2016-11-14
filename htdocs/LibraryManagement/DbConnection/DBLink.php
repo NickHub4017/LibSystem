@@ -53,12 +53,12 @@ var $username = "root";
         $returned_name=null;
         $returned_name2=null;
         $result=$stmt->get_result();
-        $rows=$result->fetch_object();
+        $rows=$result->fetch_all();
 
 
         if(sizeof($rows)==1){
             mysqli_close($con);
-            return $rows->uid;
+            return $rows[0];
         }
         mysqli_close($con);
         return false;
@@ -96,5 +96,86 @@ var $username = "root";
 
 
     }
+
+    public function bookAddToDB(Book $book)
+    {
+        //$dbhandle = mysql_connect($this->hostname, $this->username, $this->password);
+        //$selected = mysql_select_db("libsystem",$dbhandle);
+        if($this->checkBook($book)){
+            return "User Exsists";
+        }
+        $con=mysqli_connect($this->hostname, $this->username, $this->password,"libsystem");
+        $sql = 'INSERT INTO book (bookname, ISBN, Author, Edition) VALUES ( ? , ? , ? , ? );';
+        $stmt = $con->prepare($sql);
+        $stmt->bind_param('ssss',$book->getName(),$book->getISBN(),$book->getAuthor(),$book->getEdition() );
+
+        if ($stmt->execute()) {
+            mysqli_close($con);
+            return "New Book created successfully";
+        } else {
+            mysqli_close($con);
+            return $con->error;
+        }
+
+    }
+
+    public function checkBook(Book $book)
+    {
+        //$dbhandle = mysql_connect($this->hostname, $this->username, $this->password);
+        //$selected = mysql_select_db("libsystem",$dbhandle);
+        $con=mysqli_connect($this->hostname, $this->username, $this->password,"libsystem");
+        $sql = 'SELECT * FROM book where bookname = ?;';
+
+        $stmt = $con->prepare($sql);
+
+        $stmt->bind_param('ss', $book->getISBN());
+
+
+        $no_rows=0;
+        $stmt->execute();
+
+        $returned_name=null;
+        $returned_name2=null;
+        $result=$stmt->get_result();
+        $rows=$result->fetch_object();
+
+
+        if(sizeof($rows)==0){
+            mysqli_close($con);
+            return true;
+        }
+        mysqli_close($con);
+        return false;
+
+
+    }
+
+    public function getAllAuthors()
+    {
+        //$dbhandle = mysql_connect($this->hostname, $this->username, $this->password);
+        //$selected = mysql_select_db("libsystem",$dbhandle);
+        $con=mysqli_connect($this->hostname, $this->username, $this->password,"libsystem");
+        $sql = 'SELECT * FROM author';
+
+        $stmt = $con->prepare($sql);
+
+
+
+
+        $no_rows=0;
+        $stmt->execute();
+
+        $returned_name=null;
+        $returned_name2=null;
+        $result=$stmt->get_result();
+        $rows=$result->fetch_all();
+
+
+        mysqli_close($con);
+        return $rows;
+
+
+    }
+
 
 } 

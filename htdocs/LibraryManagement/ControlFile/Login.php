@@ -28,8 +28,9 @@ if(isset($_POST["hidededdata"])){
         if($res){
             $error="Login Done";
             $cookie_name = "user";
-
-            setcookie($cookie_name, $res, time() + (86400 * 30), "/"); // 86400 = 1 day
+            $cookie_name2 = "type";
+            setcookie($cookie_name, $res[0], time() + (86400 * 30), "/"); // 86400 = 1 day
+            setcookie($cookie_name2, $res[6], time() + (86400 * 30), "/"); // 86400 = 1 day
 
         }
         else{
