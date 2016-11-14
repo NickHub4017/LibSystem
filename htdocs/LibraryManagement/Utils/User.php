@@ -8,12 +8,29 @@
 
 class User {
     var $uname="";
+
+    /**
+     * @return string
+     */
+    public function getType()
+    {
+        return $this->type;
+    }
+
+    /**
+     * @param string $type
+     */
+    public function setType($type)
+    {
+        $this->type = $type;
+    }
     var $pwd="";
     var $address="";
     var $telno="";
     var $membership=null;
     var $name="";
     var $email="";
+    var $type="";
 
     /**
      * @return string

@@ -21,6 +21,7 @@ if(isset($_POST["hidededdata"])){
         $password=$_POST["password"];
         $address=$_POST["address"];
         $telno=$_POST["telno"];
+        $typeuser=$_POST["typeuser"];
 
         $user=new User();
         $user->setName($name);
@@ -29,6 +30,7 @@ if(isset($_POST["hidededdata"])){
         $user->setPwd($password);
         $user->setAddress($address);
         $user->setTelno($telno);
+        $user->setType($typeuser);
 
         $db=new DBLink();
         $error=$db->reguser($user);
@@ -64,7 +66,15 @@ if(isset($_POST["hidededdata"])){
 <label for='telno' >telno*:</label>
 <input type='text' name='telno' id='telno' maxlength="10" />
     <br>
-<input type='submit' name='Submit' value='Submit' />
+
+    <select name="typeuser">
+        <option value="st">Student</option>
+        <option value="te">Teacher</option>
+        <option value="lib">Librarian</option>
+        <option value="audi">Audi</option>
+    </select>
+<br>
+    <input type='submit' name='Submit' value='Submit' />
 
 </fieldset>
 </form>
