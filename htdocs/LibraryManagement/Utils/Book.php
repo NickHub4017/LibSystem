@@ -7,7 +7,7 @@
  */
 
 class Book {
- var $name;
+    var $name;
     var $ISBN;
     var $Author;
     var $edition;

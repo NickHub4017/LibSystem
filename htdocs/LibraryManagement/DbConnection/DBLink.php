@@ -75,7 +75,7 @@ var $username = "root";
 
         $stmt = $con->prepare($sql);
 
-        $stmt->bind_param('ss', $user->getUname());
+        $stmt->bind_param('s', $user->getUname());
 
 
         $no_rows=0;
@@ -87,7 +87,7 @@ var $username = "root";
         $rows=$result->fetch_object();
 
 
-        if(sizeof($rows)==0){
+        if(sizeof($rows)!=0){
             mysqli_close($con);
             return true;
         }
@@ -102,7 +102,7 @@ var $username = "root";
         //$dbhandle = mysql_connect($this->hostname, $this->username, $this->password);
         //$selected = mysql_select_db("libsystem",$dbhandle);
         if($this->checkBook($book)){
-            return "User Exsists";
+            return "Book Exsists";
         }
         $con=mysqli_connect($this->hostname, $this->username, $this->password,"libsystem");
         $sql = 'INSERT INTO book (bookname, ISBN, Author, Edition) VALUES ( ? , ? , ? , ? );';
@@ -128,7 +128,7 @@ var $username = "root";
 
         $stmt = $con->prepare($sql);
 
-        $stmt->bind_param('ss', $book->getISBN());
+        $stmt->bind_param('s', $book->getISBN());
 
 
         $no_rows=0;
@@ -140,7 +140,7 @@ var $username = "root";
         $rows=$result->fetch_object();
 
 
-        if(sizeof($rows)==0){
+        if(sizeof($rows)!=0){
             mysqli_close($con);
             return true;
         }
