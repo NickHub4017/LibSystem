@@ -6,7 +6,7 @@
  * Time: 3:13 AM
  *
  */
-include '../Utils/Book.php';
+include '../Utils/CopyBook.php';
 include '../DbConnection/DBLink.php';
 $error="";
 if(!isset($_COOKIE["user"])) {
@@ -26,23 +26,19 @@ if(!isset($_COOKIE["user"])) {
 
 if(isset($_POST["hidededdata"])){
 
-    if(!isset($_POST["bookname"]) or !isset($_POST["ISBN"]) or !isset($_POST["Author"]) or !isset($_POST["Edition"])   ){
+    if(!isset($_POST["Book"]) or !isset($_POST["typebook"]) ){
         $error="All * Filed must be filled";
     }else{
-        $bookname=$_POST["bookname"];
-        $ISBN=$_POST["ISBN"];
-        $Author=$_POST["Author"];
-        $Edition=$_POST["Edition"];
+        $bookid=$_POST["Book"];
+        $TypeBook=$_POST["typebook"];
 
-        $book=new Book();
-        $book->setName($bookname);
-        $book->setAuthor($Author);
-        $book->setEdition($Edition);
-        $book->setISBN($ISBN);
+        $book=new CopyBook();
+        $book->setBookdata($bookid);
+        $book->setTypeBook($TypeBook);
 
 
         $db=new DBLink();
-        echo $db->bookAddToDB($book);
+        echo $db->copyBookAddToDB($book);
 
 
 
@@ -50,43 +46,37 @@ if(isset($_POST["hidededdata"])){
 }
 
 $db=new DBLink();
-$auths=$db->getAllAuthors();
+$books=$db->getAllBooks();
 
 ?>
 
     <div><?php echo $error ?></div>
-    <form id='register' action='AddBook.php' method='post'
+    <form id='register' action='AddCopyBook.php' method='post'
           accept-charset='UTF-8'>
         <fieldset >
             <legend>Add Book</legend>
             <input type='hidden' name='hidededdata' id='name' maxlength="50" value="subdata"/>
 
-
-            <label for='bookname' >BookName*:</label>
-            <input type='text' name='bookname' id='bookname' maxlength="50" />
-            <br>
-            <label for='ISBN' >ISBN*:</label>
-            <input type='text' name='ISBN' id='ISBN' maxlength="11" />
-            <br>
-
-
-            <label for='Author' >Author*:</label>
-            <select name="Author">
+             <label for='Book' >Book*:</label>
+            <select name="Book">
                 <?php
-                foreach($auths as $anauths){
+                foreach($books as $book){
 
-                    echo "<option value=".$anauths[0].">".$anauths[1]."</option>";
+                    echo "<option value=".$book[1].">".$book[0].' - '.$book[7]."</option>";
                 }
                 ?>
 
 
             </select>
-
+             
             <br>
-            <label for='Edition' >Edition*:</label>
-            <input type='text' name='Edition' id='Edition' maxlength="11" />
+            <label for='typebook' >Book Type*:</label>
+                <select name="typebook">
+                   <option value="ref">Reference</option>
+                   <option value="len">Lending</option>
+                   <option value="dam">Damaged</option>
+                </select>
             <br>
-
             <input type='submit' name='Submit' value='Submit' />
 
         </fieldset>
