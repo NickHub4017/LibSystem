@@ -10,7 +10,7 @@ class CopyBook {
 
     var $Bookdata;
     var $copyid;
-
+    var $typebook;
     /**
      * @return mixed
      */
@@ -41,6 +41,22 @@ class CopyBook {
     public function setCopyid($copyid)
     {
         $this->copyid = $copyid;
+    }
+    
+     /**
+     * @param mixed $name
+     */
+    public function setTypeBook($typebook)
+    {
+        $this->typebook = $typebook;
+    }
+    
+    /**
+     * @return mixed
+     */
+    public function getTypeBook()
+    {
+        return $this->typebook;
     }
 
 } 
