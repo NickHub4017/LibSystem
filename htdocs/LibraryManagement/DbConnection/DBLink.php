@@ -24,8 +24,11 @@ class DBLink {
         $stmt->bind_param('sssssss', $user->getUname(), $user->getPwd(), $user->getAddress(), $user->getTelno(), $user->getName(), $user->getEmail(), $user->getType());
 
         if ($stmt->execute()) {
+          $uid = $con->insert_id;
+            
             mysqli_close($con);
-            return "New User created successfully";
+            $this-> createMember($uid);
+            return "New User created successfully ";
         } else {
             mysqli_close($con);
             return $con->error;
@@ -372,20 +375,39 @@ class DBLink {
                 if (!$this->checkBookAvailable($lendBook)) {
                     if (!$this->checkBookReserve($lendBook)) {
                         $rows = $this->checkBookCondition($lendBook);
-                        if ($rows[2] == "dam") {
+                        if ($rows->BookType == "dam") {
                             return "Book is damaged";
                         } else {
+                           $r =  $this->checkBurrowBooks($lendBook);
+                           $lencount = 0;
+                           $refcount = 0;
+                           
+                          // print_r($r);
+                           foreach($r as $rr){
+                             
+                               if($rr["BookType"] == "ref"){
+                                 $refcount =  $rr["count"];
+                               }else if($rr["BookType"] == "len"){
+                                 $lencount =   $rr["count"]; 
+                               }
+                           }
+                           
+                           if($rows->BookType == "ref" && $refcount == 1){
+                                return "The reference book limit exceeded";
+                           }else if($rows->BookType == "len" && $lencount == 2){
+                               return "The Lending book limit exceeded";
+                           }else{
                             $con = mysqli_connect($this->hostname, $this->username, $this->password, "libsystem");
                             $sql = 'INSERT INTO lendingrecord (CopybookID,memship_id) VALUES ( ?,? );';
                             $stmt = $con->prepare($sql);
-                            $stmt->bind_param('s', $lendBook->getCopyid());
-                            $stmt->bind_param('d', $lendBook->getMembership_id());
+                            $stmt->bind_param('sd', $lendBook->getCopyid(),$lendBook->getMembership_id());
+                           
 
                             if ($stmt->execute()) {
                                 mysqli_close($con);
-                                if($rows[2] == "ref"){
+                                if($rows->BookType == "ref"){
                                     return "Lending Successfully Book is reference type";
-                                }else if($rows[2] == "len"){
+                                }else if($rows->BookType == "len"){
                                      return "Lending Successfully Book is lend type";
                                 }
                                 
@@ -393,6 +415,7 @@ class DBLink {
                                 mysqli_close($con);
                                 return $con->error;
                             }
+                           }
                         }
                     } else {
                         return "Book is reserved";
@@ -406,4 +429,50 @@ class DBLink {
         }
     }
 
+    public function createMember($user_id){
+         $con = mysqli_connect($this->hostname, $this->username, $this->password, "libsystem");
+        $sql = 'INSERT INTO memship (UserID,Start,End) VALUES ( ? , ?,? );';
+        $stmt = $con->prepare($sql);
+        $stmt->bind_param('dss',$user_id, date('Y-m-d'), date('Y-m-d', strtotime('+1 years')));
+
+        if ($stmt->execute()) {
+            mysqli_close($con);
+            return "MemberShip created ";
+        } else {
+            mysqli_close($con);
+            return $con->error;
+        }
+        
+    }
+    
+    public function checkBurrowBooks(LendBook $lendBook){
+         $con = mysqli_connect($this->hostname, $this->username, $this->password, "libsystem");
+         
+        $sql = 'SELECT copybook.BookType, COUNT(copybook.BookType) as count FROM lendingrecord inner join copybook on lendingrecord.CopybookID = copybook.idCopyBook  where lendingrecord.memship_id =? and lendingrecord.isReturned = false  group by copybook.BookType ; ';
+
+        $stmt = $con->prepare($sql);
+
+        $stmt->bind_param('d', $lendBook->getMembership_id());
+
+
+        $no_rows = 0;
+        $stmt->execute();
+
+        $returned_name = null;
+        $returned_name2 = null;
+        $result = $stmt->get_result();
+       // $rows = $result->fetch_assoc();
+        while($row = $result->fetch_assoc())
+    {
+        $rows[] = $row;
+    }
+       
+
+        if (sizeof($rows) != 0) {
+            mysqli_close($con);
+            return $rows;
+        }
+        mysqli_close($con);
+        return false;
+    }
 }
