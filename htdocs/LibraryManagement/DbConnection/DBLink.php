@@ -475,4 +475,45 @@ class DBLink {
         mysqli_close($con);
         return false;
     }
+    
+    public function getCopyBooksbybookId($book_id){
+          $con = mysqli_connect($this->hostname, $this->username, $this->password, "libsystem");
+         
+        $sql = 'select DISTINCT copybook.idCopyBook,book.bookname from copybook 
+            right join book on book.book_id = copybook.BookID where copybook.idCopyBook 
+            not in(SELECT CopybookID FROM `lendingrecord` 
+            WHERE not EXISTS (select  1 from `lendingrecord` WHERE `isReturned` = true)) 
+            and book.book_id = ? 
+            and  copybook.idCopyBook is not null ;'
+          
+          ;
+
+        $stmt = $con->prepare($sql);
+
+        $stmt->bind_param('d', $book_id);
+
+
+        $no_rows = 0;
+        $stmt->execute();
+
+        $returned_name = null;
+        $returned_name2 = null;
+        $result = $stmt->get_result();
+       // $rows = $result->fetch_assoc();
+          $rows = [];
+        while($row = $result->fetch_assoc())
+          
+    {
+        $rows[] = $row;
+    }
+       
+
+        if (sizeof($rows) != 0) {
+            mysqli_close($con);
+            return $rows;
+        }
+        mysqli_close($con);
+        return false;
+        
+    }
 }
