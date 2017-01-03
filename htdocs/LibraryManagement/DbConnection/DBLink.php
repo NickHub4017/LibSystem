@@ -516,4 +516,43 @@ class DBLink {
         return false;
         
     }
+    
+      public function getLendBooksbyMemID($mem_id){
+          $con = mysqli_connect($this->hostname, $this->username, $this->password, "libsystem");
+         
+        $sql = 'SELECT lendingrecord.idLendingRecord,book.bookname,lendingrecord.Date,copybook.BookType  
+            FROM lendingrecord inner join copybook on lendingrecord.CopybookID = copybook.idCopyBook 
+            inner join book on book.book_id = copybook.BookID where lendingrecord.memship_id =?
+            and lendingrecord.isReturned = false  ';
+          
+          
+
+        $stmt = $con->prepare($sql);
+
+        $stmt->bind_param('d', $mem_id);
+
+
+        $no_rows = 0;
+        $stmt->execute();
+
+        $returned_name = null;
+        $returned_name2 = null;
+        $result = $stmt->get_result();
+       // $rows = $result->fetch_assoc();
+          $rows = [];
+        while($row = $result->fetch_assoc())
+          
+    {
+        $rows[] = $row;
+    }
+       
+
+        if (sizeof($rows) != 0) {
+            mysqli_close($con);
+            return $rows;
+        }
+        mysqli_close($con);
+        return false;
+        
+    }
 }
