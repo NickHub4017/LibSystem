@@ -10,6 +10,7 @@ echo 'Hello '.($_COOKIE['user']!='' ? $_COOKIE['user'] : 'Guest');
     <li><a href="./AddAuthor.php">Add Author</a></li>
     <li><a href="./LendingBook.php">Lend Book</a></li>
     <li><a href="./ReturnBook.php">Return Book</a></li>
+    <li><a href="./EditBook.php">Edit Book</a></li>
 
 </ul>
       
