@@ -431,7 +431,7 @@ class DBLink {
 
     public function createMember($user_id){
          $con = mysqli_connect($this->hostname, $this->username, $this->password, "libsystem");
-        $sql = 'INSERT INTO memship (UserID,Start,End) VALUES ( ? , ?,? );';
+        $sql = 'INSERT INTO memship (UserID,Start,End) VALUES (?,?,?);';
         $stmt = $con->prepare($sql);
         $stmt->bind_param('dss',$user_id, date('Y-m-d'), date('Y-m-d', strtotime('+1 years')));
 
@@ -520,7 +520,7 @@ class DBLink {
       public function getLendBooksbyMemID($mem_id){
           $con = mysqli_connect($this->hostname, $this->username, $this->password, "libsystem");
          
-        $sql = 'SELECT lendingrecord.idLendingRecord,book.bookname,lendingrecord.Date,copybook.BookType  
+        $sql = 'SELECT lendingrecord.idLendingRecord,book.bookname,DATEDIFF(CURDATE() ,date(lendingrecord.Date)) as dateCount,copybook.BookType  
             FROM lendingrecord inner join copybook on lendingrecord.CopybookID = copybook.idCopyBook 
             inner join book on book.book_id = copybook.BookID where lendingrecord.memship_id =?
             and lendingrecord.isReturned = false  ';
@@ -555,4 +555,20 @@ class DBLink {
         return false;
         
     }
+    
+    public function ReturningBook($idLendingRecord,$fine){
+        $con = mysqli_connect($this->hostname, $this->username, $this->password, "libsystem");
+        $sql = 'UPDATE lendingrecord SET ReturnDate = NOW(), isReturned = true , fine = ? where IdLendingRecord = ? ;';
+        $stmt = $con->prepare($sql);
+        $stmt->bind_param('dd',$fine,$idLendingRecord);
+
+        if ($stmt->execute()) {
+            mysqli_close($con);
+            return "Book Returned Successful ";
+        } else {
+            mysqli_close($con);
+            return $con->error;
+        }
+    }
+    
 }
