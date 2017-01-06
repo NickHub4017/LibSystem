@@ -1,5 +1,6 @@
 <?php
 include '../Utils/User.php';
+include '../Utils/Book.php';
 include '../DbConnection/DBLink.php';
 $error = "";
 
@@ -35,22 +36,30 @@ if (isset($_POST['action'])) {
 }
 if (isset($_POST["hidededdata"])) {
 
-    if (!isset($_POST["member_id"]) or !isset($_POST["Book"]) or !isset($_POST["fine"])) {
+    if (!isset($_POST["Book"]) or !isset($_POST["bookname"]) or !isset($_POST["ISBN"])or !isset($_POST["Author"]) ) {
         $error = "All * Filed must be filled";
     } else {
-        $lendingrecord_id = $_POST["Book"];
-        $fine = $_POST["fine"];
-        $member_id = $_POST["member_id"];
+        $book_id = $_POST["Book"];
+        $book_name = $_POST["bookname"];
+        $isbn = $_POST["ISBN"];
+        $author = $_POST["Author"];
+        
+        print_r($book_id);
+        print_r($book_name);
+        print_r($isbn);
+        print_r($author);
 
-
-
-        $db = new DBLink();
-        echo $db->ReturningBook($lendingrecord_id, $fine);
+        $book = new Book();
+        
+        //$db = new DBLink();
+       // echo $db->ReturningBook($lendingrecord_id, $fine);
     }
 }
 
 $db = new DBLink();
 $books = $db->getAllBooks();
+
+$auths=$db->getAllAuthors();
 ?>
 <head>
     <script
@@ -62,12 +71,13 @@ $books = $db->getAllBooks();
 <form id='register' action='EditBook.php' method='post'
       accept-charset='UTF-8'>
     <fieldset >
-        <legend>Return Book</legend>
-
+        <legend>Edit Book</legend>
+  <input type='hidden' name='hidededdata' id='name' maxlength="50" value="subdata"/>
         <label for='Book' >Book*:</label>
         <select id="book" name="Book">
             <option value="">Select a book</option>
             <?php
+            
             foreach ($books as $book) {
 
                 echo "<option value=" . $book[1] . ">" . $book[0] . ' - ' . $book[7] . "</option>";
@@ -76,102 +86,58 @@ $books = $db->getAllBooks();
 
 
         </select>
-        <input type='hidden' name='hidededdata' id='name' maxlength="50" value="subdata"/>
+      
 
+        <label for='bookname' >BookName*:</label>
+        <input type='text' name='bookname' id='bookname' maxlength="50" />
         <br>
-        <label for='member_id' >Member ID: </label>
-        <input type='text' name='member_id' id='member_id' maxlength="50" />
+        <label for='ISBN' >ISBN*:</label>
+        <input type='text' name='ISBN' id='ISBN' maxlength="11" />
         <br>
-        <input type='button' id="lendbook" name='lendbook' value='Get Lend Books' />
-        <br>
-        <label for='Book' >Lend Books *:</label>
-        <select id="book" name="Book">
-            <option value="">Select a book</option>
 
+
+        <label for='Author' >Author*:</label>
+        <select name="Author" id="Author">
+            <?php
+            foreach ($auths as $anauths) {
+
+                echo "<option value=" . $anauths[0] . ">" . $anauths[1] . "</option>";
+            }
+            ?>
 
 
         </select>
-        <br>
-        <label for='fine' >Fine: </label>
-        <input type='text'readonly="true" name='fine' id='fine' maxlength="50" />
-        <br>
 
+        <br>
+        <label for='Edition' >Edition*:</label>
+        <input type='text' name='Edition' id='Edition' maxlength="11" />
+        <br>
         <input type='submit' name='Submit' value='Submit' />
 
     </fieldset>
 </form>
 <script>
    
-    $('#lendbook').on('click', function() {
-        var member_id = $("#member_id").val();
-        console.log(member_id);
-       
-        if(member_id!= null || member_id !=""){
-            $.ajax({ url: 'ReturnBook.php',
-                data: {action : member_id},
-                type: 'post',
-                success: function(output) {
-                    console.log(jQuery.parseJSON(output));
-                    if(!output==""){
-                        var obj = jQuery.parseJSON( output );
-                        // console.log(obj);
-                        for($i = 0 ; $i<obj.length; $i++){
-                                
-                            $('#book').append($('<option>', {
-                                value: obj[$i].idLendingRecord,
-                                text: obj[$i].bookname,
-                                dcount:  obj[$i].dateCount,
-                                booktype:  obj[$i].BookType
-                            }));
-                            console.log(obj);
-                        }
-                    }
-                      
-            
-                       
-                }
-            });
-        }
-    });
     
     $('#book').on('change', function() {
-        var fil = $(this).attr("dcount");
-        var booktype = $( "#book option:selected" ).attr("booktype");
-        if (booktype != "" || booktype != null || booktype!= 'undefined'){
-            if(booktype == "ref"){
-                var days = $( "#book option:selected" ).attr("dcount");
-                if(days > 0){
-                    $("#fine").val((days - 1)*2);
-                }else{
-                    $("#fine").val(0);
+        var book_id = $( "#book" ).val();
+        if (book_id != "" || book_id != null || book_id!= 'undefined'){ 
+            var books = jQuery.parseJSON('<?php echo json_encode($books);?>');
+           
+            for($i = 0 ; $i<books.length ; $i++){
+                if(book_id == books[$i][1] ){
+                    $("#bookname").val(books[$i][0]);
+                     $("#ISBN").val(books[$i][2]);
+                     $("#Edition").val(books[$i][4]);
+                     $("#Author").val(books[$i][6]);
+                    
                 }
-            }else if(booktype == "len"){
-                var days = $( "#book option:selected" ).attr("dcount");
-                if(days > 7){
-                    $("#fine").val((days - 7)*10);
-                }else{
-                    $("#fine").val(0);
-                }
+                
             }
+      
         }
        
     });
 
-    
 
-  
-    /* function mm(){
-        var book_id = $("#book").val();
-        if(book_id!= null || book_id !=""){
-            $.ajax({ url: 'LendingBook.php',
-                data: {action : book_id},
-                type: 'post',
-                success: function(output) {
-                    console.log(output);
-                }
-            });
-        }
-
-    }*/
-    
 </script>
