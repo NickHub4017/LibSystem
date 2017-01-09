@@ -11,6 +11,7 @@ class Book {
     var $ISBN;
     var $Author;
     var $edition;
+    var $book_id;
 
     /**
      * @return mixed
@@ -75,5 +76,21 @@ class Book {
     public function setName($name)
     {
         $this->name = $name;
+    }
+    
+     /**
+     * @return mixed
+     */
+    public function getBook_id()
+    {
+        return $this->book_id;
+    }
+
+    /**
+     * @param mixed $Author
+     */
+    public function setBook_id($book_id)
+    {
+        $this->book_id = $book_id;
     }
 } 
