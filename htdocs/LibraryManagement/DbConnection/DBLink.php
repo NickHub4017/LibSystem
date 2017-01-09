@@ -520,7 +520,7 @@ class DBLink {
       public function getLendBooksbyMemID($mem_id){
           $con = mysqli_connect($this->hostname, $this->username, $this->password, "libsystem");
          
-        $sql = 'SELECT lendingrecord.idLendingRecord,book.bookname,DATEDIFF(CURDATE() ,date(lendingrecord.Date)) as dateCount,copybook.BookType  
+        $sql = 'SELECT lendingrecord.idLendingRecord,book.bookname,DATEDIFF(CURDATE() ,date(lendingrecord.Date)) as dateCount,copybook.BookType, date(lendingrecord.Date) as burrowdate 
             FROM lendingrecord inner join copybook on lendingrecord.CopybookID = copybook.idCopyBook 
             inner join book on book.book_id = copybook.BookID where lendingrecord.memship_id =?
             and lendingrecord.isReturned = false  ';
@@ -569,6 +569,50 @@ class DBLink {
             mysqli_close($con);
             return $con->error;
         }
+    }
+    
+    public function updateBookByID(Book $book){
+        $con = mysqli_connect($this->hostname, $this->username, $this->password, "libsystem");
+        $sql = 'UPDATE book SET bookname =?,ISBN =?,Author = ?,Edition = ? where book_id = ? ;';
+        $stmt = $con->prepare($sql);
+        $stmt->bind_param('ssdsd',$book->name,$book->ISBN,$book->Author,$book->edition,$book->book_id);
+
+        if ($stmt->execute()) {
+            mysqli_close($con);
+            return "Book Update Successful ";
+        } else {
+            mysqli_close($con);
+            return $con->error;
+        }
+    }
+    
+        public function getUserInfoByUsername($name){
+        $con = mysqli_connect($this->hostname, $this->username, $this->password, "libsystem");
+        $sql = 'select * from user inner join memship on user.uid = memship.UserID where user.uname =? and memship.isactive = true ;';
+        $stmt = $con->prepare($sql);
+        $stmt->bind_param('s',$name);
+
+        $no_rows = 0;
+        $stmt->execute();
+
+        $returned_name = null;
+        $returned_name2 = null;
+        $result = $stmt->get_result();
+       // $rows = $result->fetch_assoc();
+          $rows = [];
+        while($row = $result->fetch_assoc())
+          
+    {
+        $rows[] = $row;
+    }
+       
+
+        if (sizeof($rows) != 0) {
+            mysqli_close($con);
+            return $rows;
+        }
+        mysqli_close($con);
+        return false;
     }
     
 }
