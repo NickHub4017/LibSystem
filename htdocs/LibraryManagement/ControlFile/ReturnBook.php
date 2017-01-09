@@ -6,15 +6,15 @@ $error="";
 
 
 if (!isset($_COOKIE["user"])) {
-    //http_redirect();
+   header('Location: Login.php');
     //ToDo implemnt this
 } else {
 
     $uname = $_COOKIE["user"];
     $utype = $_COOKIE["type"];
 
-    if ($utype != "lib") {
-        //http_redirect()
+    if ($utype != "li") {
+       header('Location: Login.php');
         //ToDO implemnt this
     }
 }

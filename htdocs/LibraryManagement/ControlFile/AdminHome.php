@@ -1,4 +1,16 @@
 <?php
+if (!isset($_COOKIE["user"])) {
+   header('Location: Login.php');
+}else {
+
+    $uname=$_COOKIE["user"];
+    $utype=$_COOKIE["type"];
+
+    if($utype!="li"){
+         header('Location: Login.php');
+        //ToDO implemnt this
+    }
+}
 echo 'Hello '.($_COOKIE['user']!='' ? $_COOKIE['user'] : 'Guest');
 ?>
 
@@ -11,6 +23,7 @@ echo 'Hello '.($_COOKIE['user']!='' ? $_COOKIE['user'] : 'Guest');
     <li><a href="./LendingBook.php">Lend Book</a></li>
     <li><a href="./ReturnBook.php">Return Book</a></li>
     <li><a href="./EditBook.php">Edit Book</a></li>
+     <li><a href="./Logout.php">Logout</a></li>
 
 </ul>
       

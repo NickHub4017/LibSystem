@@ -7,15 +7,15 @@ $error = "";
 
 
 if (!isset($_COOKIE["user"])) {
-    //http_redirect();
+   header('Location: Login.php');
     //ToDo implemnt this
 } else {
 
     $uname = $_COOKIE["user"];
     $utype = $_COOKIE["type"];
 
-    if ($utype != "lib") {
-        //http_redirect()
+    if ($utype != "li") {
+       header('Location: Login.php');
         //ToDO implemnt this
     }
 }
@@ -43,6 +43,7 @@ if (isset($_POST["hidededdata"])) {
         $book_name = $_POST["bookname"];
         $isbn = $_POST["ISBN"];
         $author = $_POST["Author"];
+        $edition = $_POST["Edition"];
         
         print_r($book_id);
         print_r($book_name);
@@ -50,9 +51,13 @@ if (isset($_POST["hidededdata"])) {
         print_r($author);
 
         $book = new Book();
-        
-        //$db = new DBLink();
-       // echo $db->ReturningBook($lendingrecord_id, $fine);
+        $book->setBook_id($book_id);
+        $book->setName($book_name);
+        $book->setAuthor($author);
+        $book->setEdition($edition);
+        $book->setISBN($isbn);
+        $db = new DBLink();
+       echo $db->updateBookByID($book);
     }
 }
 
